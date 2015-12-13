@@ -2,25 +2,26 @@
 #include <fstream>
 #include <iomanip>
 #include <string>
+#include <sstream>
+#include <time.h>
 using namespace std;
 
-struct gather
+struct hash_node                    //hash rule : ASCII mod 8000
 {
-	char word[2];
+	bool exist;
 	int count;
-	gather* next;
+	char word[3];
 };
-
 
 bool is_word(char a[])
 {
-	char *sign[] = { "“", "”", "，", "。", "！", "？", "《", "》", "·", "、", "（", "）", "…", "：", "‘", "’", "；", "/", "【", "】","①"};
 	if (a[0] & 0x80)
 	{
-		for (int i = 0;i<21; i++)
-			if (strcmp(a,sign[i])==0)
-				return false;
-		return true;
+		unsigned short x= (a[0] + 256) * 256 + a[1] + 256;
+		if (x >= 41279 && x < 43584)
+			return false;
+		else
+			return true;
 	}
 	else
 		return false;
@@ -28,72 +29,112 @@ bool is_word(char a[])
 
 int main()
 {
-	//ifstream data_file("H:\\data_51_100.txt",ios::in);
-	ifstream data_file("H:\\test.txt", ios::in);
+	hash_node hash[8000];
+	for (int i = 0; i < 8000; i++)
+	{
+		hash[i].count = 0;
+		hash[i].exist = false;
+	}
+	ifstream data_file("H:\\data_51_100.txt",ios::in);
+	//ifstream data_file("H:\\test.txt", ios::in);
 	if (!data_file)
 		cout << "Fail to open the source file" << endl;
-	gather *root=NULL;
+	clock_t start, end;
+	start = clock();
 	while (!data_file.eof())
 	{
-		char a[100];
-		data_file >> a;
-		if (is_word(a) == true)
+		/*string line;
+		getline(data_file, line);
+		istringstream ss(line);
+		while (!ss.eof())
+		{*/
+		char line[150];
+		data_file.getline(line, 150);
+		for (int i = 0; line[i] != '\0'; i++)
 		{
-			gather *p = root;
-			if (p == NULL)
+			if (line[i] & 0x80)
 			{
-				root = new gather;
-				root->count = 1;
-				strcpy(root->word,a);
-				root->next = NULL;
-			}
-			else
-			{
-				bool found = false;
-				while (1)
-				{
-					if (strcmp(p->word, a) == 0)
+				char word[3];
+				word[0] = line[i];
+				word[1] = line[i + 1];
+				word[2] = '\0';
+				char a[3];
+				strcpy(a, word);
+				if (a[1] > 0)
+					a[1] = -a[1];
+				if (is_word(word) == true)
+				{                                                                 //只截取前两位word
+					if (hash[((int)a[0])*((int)a[1]) % 8000].exist == false)
 					{
-						p->count++;
-						found = true;
+						hash[((int)a[0])*((int)a[1]) % 8000].exist = true;
+						hash[((int)a[0])*((int)a[1]) % 8000].count = 1;
+						strcpy(hash[((int)a[0])*((int)a[1]) % 8000].word, word);
 					}
-					if (p->next == NULL)
-						break;
 					else
-						p = p->next;
+					{
+						if (strcmp(hash[((int)a[0])*((int)a[1]) % 8000].word, word) == 0)
+						{
+							hash[((int)a[0])*((int)a[1]) % 8000].count++;
+						}
+						else
+						{
+							int index = (((int)a[0])*((int)a[1]) % 8000 + 1) % 8000;
+							bool found = false;
+							while (hash[index].exist == true)
+							{
+								if (strcmp(hash[index].word, word) == 0)
+								{
+									hash[index].count++;
+									found = true;
+									break;
+								}
+								else
+									index = (index + 1) % 8000;
+							}
+							if (found == false && hash[index].exist == false)
+							{
+								hash[index].count = 1;
+								hash[index].exist = true;
+								strcpy(hash[index].word, word);
+							}
+						}
+					}
 				}
-				if (found == false)
-				{
-					p->next = new gather;
-					p = p->next;
-					p->count = 1;
-					strcpy(p->word, a);
-					p->next = NULL;
-				}
+				i++;
 			}
 		}
-		/*gather *p = root;
-		while (p != NULL)
-		{
-			cout << p->word << " " <<p->count<< endl;
-			p = p->next;
-		}
-		getchar();*/
 	}
-	cout << "success1" << endl;
+	end = clock();
+	cout << "Run time: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
 	data_file.close();
-	ofstream token("D:\\token.txt",ios::out);
+	ofstream token("D:\\token.txt", ios::out);
 	if (!token)
 	{
 		cout << "fail to open the token.txt" << endl;
 		return 0;
 	}
-	gather *p = root;
-	while (p != NULL)
+	int max_count = 0;
+	for (int i = 0; i < 8000; i++)
 	{
-		token << p->word << " " << p->count << endl;
-		p = p->next;
+		if (hash[i].exist == true && hash[i].count > max_count)
+			max_count = hash[i].count;
 	}
-	cout << "success2" << endl;
+	while (max_count != 0)
+	{
+		for (int i = 0; i < 8000; i++)
+		{
+			if (hash[i].count == max_count && hash[i].exist == true)
+			{
+				token << hash[i].word << " " << hash[i].count << endl;
+				hash[i].exist = false;
+			}
+		}
+		max_count = 0;
+		for (int i = 0; i < 8000; i++)
+		{
+			if (hash[i].exist == true && hash[i].count > max_count)
+				max_count = hash[i].count;
+		}
+	}
 	return 0;
 }
