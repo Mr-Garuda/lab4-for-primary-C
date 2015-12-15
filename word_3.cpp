@@ -2,15 +2,15 @@
 #include <fstream>
 #include <string>
 #include <time.h>
-#define HashSize 1000000
-#define MaxSize 100000
+#define HashSize 8000000
+#define MaxSize 400000
 using namespace std;
 
 struct hash_node
 {
 	bool exist;
 	int count;
-	char word_2[5];
+	char word_3[7];
 };
 
 bool is_word(char a[])
@@ -22,7 +22,7 @@ bool is_word(char a[])
 			x = (a[0] + 256) * 256 + a[1] + 256;
 		else
 			x = (a[0] + 256) * 256 + a[1];
-		if (x >= 41279 && x < 43584 )
+		if (x >= 41279 && x < 43584)
 			return false;
 		else
 			return true;
@@ -49,39 +49,45 @@ int main()
 	while (!data_file.eof())
 	{
 		char line[150];
-		//cout << strlen(line)<<endl;
-		//getchar();
-		data_file.getline(line,150);
-		for (int i = 0;i<strlen(line)-4; i++)
+		data_file.getline(line, 150);
+		for (int i = 0; i<strlen(line) - 7; i++)
 		{
 			if (line[i] & 0x80)
 			{
 				char word_a[3];
 				char word_b[3];
+				char word_c[3];
 				word_a[0] = line[i];
 				word_a[1] = line[i + 1];
 				word_a[2] = '\0';
 				word_b[0] = line[i + 3];
 				word_b[1] = line[i + 4];
 				word_b[2] = '\0';
-				if (is_word(word_a) == true && is_word(word_b) == true && line[i+2]==' ')
+				word_c[0] = line[i + 6];
+				word_c[1] = line[i + 7];
+				word_c[2] = '\0';
+				if (is_word(word_a) == true && is_word(word_b) == true && line[i + 2] == ' ' && is_word(word_c)==true && line[i+5]==' ')
 				{
-					int hash_code = ((word_a[0] - word_b[0] + 256)*(word_a[1] - word_b[1] + 256)*(word_b[1] - word_a[0] + 256)+233333) % HashSize;
-					char word_2[5];
-					word_2[0] = word_a[0];
-					word_2[1] = word_a[1];
-					word_2[2] = word_b[0];
-					word_2[3] = word_b[1];
-					word_2[4] = '\0';
+					char word_3[7];
+					word_3[0] = word_a[0];
+					word_3[1] = word_a[1];
+					word_3[2] = word_b[0];
+					word_3[3] = word_b[1];
+					word_3[4] = word_c[0];
+					word_3[5] = word_c[1];
+					word_3[6] = '\0';
+					int hash_code = ((word_3[0] + 256) % 10) * 100000 + ((word_3[1] + 256) % 10) * 10000 + ((word_3[2] + 256) % 10) * 1000 + ((word_3[3] + 256) % 10) * 100 + ((word_3[4] + 256) % 10) * 10 + (word_3[5] + 256) % 10 + ((word_3[0] - word_3[1] + word_3[2] - word_3[3] + word_3[4] - word_3[5]+1200) % 8) * 1000000;
+					//cout << word_3<<" "<< hash_code << endl;
+					//getchar();
 					if (Hash[hash_code].exist == false)
 					{
 						Hash[hash_code].exist = true;
 						Hash[hash_code].count = 1;
-						strcpy(Hash[hash_code].word_2, word_2);
+						strcpy(Hash[hash_code].word_3, word_3);
 					}
 					else
 					{
-						if (strcmp(Hash[hash_code].word_2, word_2) == 0)
+						if (strcmp(Hash[hash_code].word_3, word_3) == 0)
 						{
 							Hash[hash_code].count++;
 						}
@@ -91,7 +97,7 @@ int main()
 							bool found = false;
 							while (Hash[hash_code].exist == true)
 							{
-								if (strcmp(Hash[hash_code].word_2, word_2) == 0)
+								if (strcmp(Hash[hash_code].word_3, word_3) == 0)
 								{
 									Hash[hash_code].count++;
 									found = true;
@@ -104,7 +110,7 @@ int main()
 							{
 								Hash[hash_code].exist = true;
 								Hash[hash_code].count = 1;
-								strcpy(Hash[hash_code].word_2, word_2);
+								strcpy(Hash[hash_code].word_3, word_3);
 							}
 						}
 					}
@@ -117,28 +123,29 @@ int main()
 	end = clock();
 	cout << "Run time of Hash: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
 	data_file.close();
-	ofstream word_2("D:\\word_2.txt", ios::out);
-	if (!word_2)
+	ofstream word_3("D:\\word_3.txt", ios::out);
+	if (!word_3)
 	{
-		cout << "fail to open the word_2.txt" << endl;
+		cout << "fail to open the word_3.txt" << endl;
 		return 0;
 	}
-	int max_count = 0;
+
+	int max_count = 0;        //ÅÅÐò·¨1
 	int max_length = 0;
 	for (int i = 0; i < HashSize; i++)
 	{
 		if (Hash[i].exist == true)
-		{ 
+		{
 			if (Hash[i].count > max_count)
 			{
 				max_count = Hash[i].count;
 				max_length = 1;
-				max_list[max_length-1] = i;
+				max_list[max_length - 1] = i;
 			}
 			else if (Hash[i].count == max_count)
 			{
 				max_list[max_length] = i;
-				max_length ++;
+				max_length++;
 			}
 		}
 	}
@@ -146,8 +153,8 @@ int main()
 	{
 		for (int i = 0; i < max_length; i++)
 		{
-			//word_2 << Hash[max_list[i]].word_2 << " " << Hash[max_list[i]].count << " " << (int)Hash[max_list[i]].word_2[0] << " " << (int)Hash[max_list[i]].word_2[1] << " " << (int)Hash[max_list[i]].word_2[2] << " " << (int)Hash[max_list[i]].word_2[3] <<endl;
-			word_2 << Hash[max_list[i]].word_2 << " " << Hash[max_list[i]].count << endl;
+			//word_3 << Hash[max_list[i]].word_3 << " " << Hash[max_list[i]].count << " " << (int)Hash[max_list[i]].word_3[0] << " " << (int)Hash[max_list[i]].word_3[1] << " " << (int)Hash[max_list[i]].word_3[2] << " " << (int)Hash[max_list[i]].word_3[3] <<endl;
+			word_3 << Hash[max_list[i]].word_3 << " " << Hash[max_list[i]].count << endl;
 			Hash[max_list[i]].exist = false;
 		}
 		max_count = 0;
@@ -160,7 +167,7 @@ int main()
 				{
 					max_count = Hash[i].count;
 					max_length = 1;
-					max_list[max_length-1] = i;
+					max_list[max_length - 1] = i;
 				}
 				else if (Hash[i].count == max_count)
 				{
@@ -174,19 +181,11 @@ int main()
 	{
 		if (Hash[i].count == 2 && Hash[i].exist == true)
 		{
-			word_2 << Hash[i].word_2 << " " << Hash[i].count << endl;
+			word_3 << Hash[i].word_3 << " " << Hash[i].count << endl;
 			Hash[i].exist = false;
 		}
 	}
-	/*for (int i = 0; i < HashSize; i++)
-	{
-		if (Hash[i].exist == true)
-		{
-			word_2 << Hash[i].word_2 << " " << Hash[i].count << endl;
-			Hash[i].exist = false;
-		}
-	}*/
-	word_2.close();
+	word_3.close();
 	end = clock();
 	cout << "Run time of all: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
 	return 0;
