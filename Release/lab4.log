@@ -1,15 +1,5 @@
-﻿生成启动时间为 2015/12/15 20:58:41。
-     1>项目“H:\GitHub\lab for primary C\lab4\lab4\lab4.vcxproj”在节点 2 上(Build 个目标)。
-     1>ClCompile:
-         E:\VS2013\VC\bin\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D WIN32 /D NDEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release\\" /Fd"Release\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt word_4.cpp
-         word_4.cpp
-     1>word_4.cpp(53): warning C4018: “<”: 有符号/无符号不匹配
-     1>word_4.cpp(92): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 E:\VS2013\VC\include\string.h(112) : 参见“strcpy”的声明
-     1>word_4.cpp(119): error C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
-                 E:\VS2013\VC\include\string.h(112) : 参见“strcpy”的声明
-     1>已完成生成项目“H:\GitHub\lab for primary C\lab4\lab4\lab4.vcxproj”(Build 个目标)的操作 - 失败。
+﻿生成启动时间为 2015/12/21 10:18:31。
 
-生成失败。
+生成成功。
 
-已用时间 00:00:00.58
+已用时间 00:00:00.16

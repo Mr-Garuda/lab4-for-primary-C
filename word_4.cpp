@@ -6,6 +6,8 @@
 #define MaxSize 400000
 using namespace std;
 
+/*默认路径为D:\\data_51_100.txt，文件读取语句在第47行*/
+
 struct hash_node
 {
 	bool exist;
@@ -32,6 +34,7 @@ bool is_word(char a[])
 }
 
 hash_node Hash[HashSize];
+hash_node sort[3300000];
 int max_list[MaxSize];
 
 int main()
@@ -41,7 +44,7 @@ int main()
 		Hash[i].exist = false;
 		Hash[i].count = 0;
 	}
-	ifstream data_file("H:\\data_51_100.txt", ios::in);
+	ifstream data_file("D:\\data_51_100.txt", ios::in);         //文件路径
 	if (!data_file)
 		cout << "Fail to open the source file" << endl;
 	clock_t start, end;
@@ -83,8 +86,6 @@ int main()
 					word_4[7] = word_d[1];
 					word_4[8] = '\0';
 					int hash_code = ((word_4[0] +word_4[1]+ 512) % 50) * 1000000 + ((word_4[2] + 256) % 10) * 100000 + ((word_4[3] + 256) % 10) * 10000 + ((word_4[4] + 256) % 10) * 1000 + ((word_4[5] + 256) % 10) * 100 + ((word_4[6] + 256) % 10) * 10 + (word_4[7] + 256) % 10;
-					//cout << word_3<<" "<< hash_code << endl;
-					//getchar();
 					if (Hash[hash_code].exist == false)
 					{
 						Hash[hash_code].exist = true;
@@ -127,7 +128,7 @@ int main()
 		}
 	}
 	end = clock();
-	cout << "Run time of Hash: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
+	cout << "建表时间: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
 	data_file.close();
 	ofstream word_4("D:\\word_4.txt", ios::out);
 	if (!word_4)
@@ -136,46 +137,54 @@ int main()
 		return 0;
 	}
 
-	int max_count = 0;        //排序法1
-	int max_length = 0;
-	for (int i = 0; i < HashSize; i++)
+	int sort_num = 0;
+	for (int i = 0;i < HashSize; i++ )
 	{
-		if (Hash[i].exist == true)
+		if (Hash[i].count > 1)
 		{
-			if (Hash[i].count > max_count)
-			{
-				max_count = Hash[i].count;
-				max_length = 1;
-				max_list[max_length - 1] = i;
-			}
-			else if (Hash[i].count == max_count)
-			{
-				max_list[max_length] = i;
-				max_length++;
-			}
+			sort[sort_num].count = Hash[i].count;
+			sort[sort_num].exist = true;
+			strcpy(sort[sort_num].word_4, Hash[i].word_4);
+			sort_num++;
+		}
+	}
+	//cout << "Qualify finfished" << endl;
+	int max_count = 0;
+	int max_length = 0;
+	for (int i = 0; i < sort_num; i++)
+	{
+		if (sort[i].count > max_count)
+		{
+			max_count = sort[i].count;
+			max_length = 1;
+			max_list[max_length - 1] = i;
+		}
+		else if (sort[i].count == max_count)
+		{
+			max_list[max_length] = i;
+			max_length++;
 		}
 	}
 	while (max_count > 2)
 	{
 		for (int i = 0; i < max_length; i++)
 		{
-			//word_3 << Hash[max_list[i]].word_3 << " " << Hash[max_list[i]].count << " " << (int)Hash[max_list[i]].word_3[0] << " " << (int)Hash[max_list[i]].word_3[1] << " " << (int)Hash[max_list[i]].word_3[2] << " " << (int)Hash[max_list[i]].word_3[3] <<endl;
-			word_4 << Hash[max_list[i]].word_4 << " " << Hash[max_list[i]].count << endl;
-			Hash[max_list[i]].exist = false;
+			word_4<< sort[max_list[i]].word_4 << " " << sort[max_list[i]].count << endl;
+			sort[max_list[i]].exist = false;
 		}
 		max_count = 0;
 		max_length = 0;
-		for (int i = 0; i < HashSize; i++)
+		for (int i = 0; i < sort_num; i++)
 		{
-			if (Hash[i].exist == true)
+			if (sort[i].exist == true)
 			{
-				if (Hash[i].count > max_count)
+				if (sort[i].count > max_count)
 				{
-					max_count = Hash[i].count;
+					max_count = sort[i].count;
 					max_length = 1;
 					max_list[max_length - 1] = i;
 				}
-				else if (Hash[i].count == max_count)
+				else if (sort[i].count == max_count)
 				{
 					max_list[max_length] = i;
 					max_length++;
@@ -183,41 +192,8 @@ int main()
 			}
 		}
 	}
-	for (int i = 0; i < HashSize; i++)
-	{
-		if (Hash[i].count == 2 && Hash[i].exist == true)
-		{
-			word_4 << Hash[i].word_4 << " " << Hash[i].count << endl;
-			Hash[i].exist = false;
-		}
-	}
-
-	//int max_count = 1;
-	//for (int i = 0; i < HashSize; i++)
-	//{
-	//	if (Hash[i].count > max_count)
-	//		max_count = Hash[i].count;
-	//}
-	//while (max_count > 2)
-	//{
-	//	for (int i = 0; i < HashSize;i++)
-	//		if (Hash[i].count==max_count)
-	//			word_4 << Hash[i].word_4 << " " << Hash[i].count << endl;
-	//	max_count = 1;
-	//	for (int i = 0; i < HashSize; i++)
-	//		if (Hash[i].count > max_count)
-	//			max_count = Hash[i].count;
-	//}
-	//for (int i = 0; i < HashSize; i++)
-	//{
-	//	if (Hash[i].count == 2)
-	//	{
-	//		word_4 << Hash[i].word_4 << " " << Hash[i].count << endl;
-	//		Hash[i].exist = false;
-	//	}
-	//}
 	word_4.close();
 	end = clock();
-	cout << "Run time of all: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
+	cout << "总时间: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
 	return 0;
 }

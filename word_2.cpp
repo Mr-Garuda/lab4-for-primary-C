@@ -6,11 +6,13 @@
 #define MaxSize 100000
 using namespace std;
 
+/*默认路径为D:\\data_51_100.txt，文件读取语句在第46行*/
+
 struct hash_node
 {
-	bool exist;
-	int count;
-	char word_2[5];
+	bool exist;                  //标记位
+	int count;                   //记录出现次数
+	char word_2[5];        //存储双字词
 };
 
 bool is_word(char a[])
@@ -31,8 +33,8 @@ bool is_word(char a[])
 		return false;
 }
 
-hash_node Hash[HashSize];
-int max_list[MaxSize];
+hash_node Hash[HashSize];        //用于存储双字词
+int max_list[MaxSize];                  //排序的的辅助数组，用于在每次遍历时记录下出现次数最多的元素下标
 
 int main()
 {
@@ -41,7 +43,7 @@ int main()
 		Hash[i].exist = false;
 		Hash[i].count = 0;
 	}
-	ifstream data_file("H:\\data_51_100.txt", ios::in);
+	ifstream data_file("D:\\data_51_100.txt", ios::in);           //文件路径
 	if (!data_file)
 		cout << "Fail to open the source file" << endl;
 	clock_t start, end;
@@ -49,8 +51,6 @@ int main()
 	while (!data_file.eof())
 	{
 		char line[150];
-		//cout << strlen(line)<<endl;
-		//getchar();
 		data_file.getline(line,150);
 		for (int i = 0;i<strlen(line)-4; i++)
 		{
@@ -66,7 +66,8 @@ int main()
 				word_b[2] = '\0';
 				if (is_word(word_a) == true && is_word(word_b) == true && line[i+2]==' ')
 				{
-					int hash_code = ((word_a[0] - word_b[0] + 256)*(word_a[1] - word_b[1] + 256)*(word_b[1] - word_a[0] + 256)+233333) % HashSize;
+					int hash_code = ((word_a[0] - word_b[0] + 256)*(word_a[1] - word_b[1] + 256)
+						*(word_b[1] - word_a[0] + 256)+233333) % HashSize;
 					char word_2[5];
 					word_2[0] = word_a[0];
 					word_2[1] = word_a[1];
@@ -115,7 +116,7 @@ int main()
 		}
 	}
 	end = clock();
-	cout << "Run time of Hash: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
+	cout << "建表时间: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
 	data_file.close();
 	ofstream word_2("D:\\word_2.txt", ios::out);
 	if (!word_2)
@@ -146,7 +147,6 @@ int main()
 	{
 		for (int i = 0; i < max_length; i++)
 		{
-			//word_2 << Hash[max_list[i]].word_2 << " " << Hash[max_list[i]].count << " " << (int)Hash[max_list[i]].word_2[0] << " " << (int)Hash[max_list[i]].word_2[1] << " " << (int)Hash[max_list[i]].word_2[2] << " " << (int)Hash[max_list[i]].word_2[3] <<endl;
 			word_2 << Hash[max_list[i]].word_2 << " " << Hash[max_list[i]].count << endl;
 			Hash[max_list[i]].exist = false;
 		}
@@ -178,16 +178,8 @@ int main()
 			Hash[i].exist = false;
 		}
 	}
-	/*for (int i = 0; i < HashSize; i++)
-	{
-		if (Hash[i].exist == true)
-		{
-			word_2 << Hash[i].word_2 << " " << Hash[i].count << endl;
-			Hash[i].exist = false;
-		}
-	}*/
 	word_2.close();
 	end = clock();
-	cout << "Run time of all: " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
+	cout << "总时间 : " << (double)(end - start) / CLOCKS_PER_SEC << "S" << endl;
 	return 0;
 }
